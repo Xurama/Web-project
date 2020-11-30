@@ -1,5 +1,5 @@
 <?php
-
+    session_start();
     require '../includes/smarty/libs/Smarty.class.php'; 
     require "../includes/flight/flight/Flight.php";
     require "../includes/PDO.php";
