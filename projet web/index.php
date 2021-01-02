@@ -7,6 +7,7 @@
     
     Flight::set('db', $db);
 
+   
 
     Flight::register('view', 'Smarty', array(), function($smarty){
         $smarty->template_dir = './templates/';

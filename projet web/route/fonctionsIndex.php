@@ -3,8 +3,11 @@
 // route de l'index
 
 Flight::route('/', function(){
-    //effectue le rendu du template sans passer de paramètre
-    Flight::render("templates/index.tpl", array("titre"=>"Home","logged"=>(isset($_SESSION['logged']) && $_SESSION['logged'] ? $_SESSION['logged'] : null), "username" => (isset($_SESSION['username']) ? $_SESSION['username'] : false)));
+
+
+    Flight::render("templates/index.tpl", array("titre"=>"Home","logged"=>(isset($_SESSION['logged']) && $_SESSION['logged'] ? $_SESSION['logged'] : null),
+    "username" => (isset($_SESSION['username']) ? $_SESSION['username'] : false), 
+    "type" => (isset($_SESSION['type']) ? $_SESSION['type'] : false)));
 });
 
 //route de GET /inscription
@@ -44,7 +47,7 @@ Flight::route('POST /inscription', function(){
     
         //une fois les tests finis
         if(empty($messages)){
-            $req = $db->prepare("INSERT INTO `utilisateur`(`Nom`, `Email`, `Motdepasse`) VALUES (?, ?, ?);");
+            $req = $db->prepare("INSERT INTO `utilisateur`(`Nom`, `Email`, `Motdepasse`, `type`) VALUES (?, ?, ?, 'utilisateur');");
             $req->execute(array($_POST['nom'], $_POST['email'], password_hash($_POST['motdepasse'], PASSWORD_DEFAULT)));
             Flight::redirect('/succes');
     
@@ -92,6 +95,7 @@ Flight::route('POST /inscription', function(){
                 if ( password_verify($_POST['motdepasse'], $data['Motdepasse'])){
                     $_SESSION['logged'] = true;
                     $_SESSION['username'] = $data['Nom'];
+                    $_SESSION['type'] = $data['type'];
                 }
                 else $error['error'] = "Adresse email ou mot de passe invalide.";
             }
