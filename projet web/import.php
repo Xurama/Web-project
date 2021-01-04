@@ -26,9 +26,9 @@
     foreach ($fichier as $ligne){
         //enlève les caractères invisbiles \r, \n, \t, etc...
         $ligne = trim($ligne);
-        //découper la ligne en deux
+        //cela permet de découper la ligne en deux
         list($id,$NumRegion,$NomRegion) = explode(";", $ligne);
 
-        //insérer les deux valeurs dans la base
+        //cela insere les trois valeurs dans la base
         $stmt->execute(array(':id'=>$id,':NumRegion'=>$NumRegion,':NomRegion'=>$NomRegion));
     }

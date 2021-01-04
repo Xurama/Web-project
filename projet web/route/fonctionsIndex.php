@@ -109,4 +109,50 @@ Flight::route('POST /inscription', function(){
         }
     });
 
+    Flight::route("GET /candidature", function(){
+        $data = array("route"=>"GET /candidature", "titre"=>"Candidature");
+        Flight::render("templates/candidature.tpl", $data);
+    });
+
+    Flight::route('POST /candidature', function(){
+        $db = Flight::get('db');
+            $messages=array();
+            // test nom
+            if(empty($_POST['nom'])){
+                $messages['nom'] = "Le nom d'utilisateur est obligatoire";
+            }
+            // test email
+            if(empty($_POST['email'])){
+                $messages['email']="L'email est obligatoire";
+            }elseif (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) === FALSE) {
+                $messages['email'] = "L'email est invalide";
+            }else{
+                $st=$db->prepare("select email from Utilisateur where email = ?");
+                $st->execute(array($_POST['email']));
+                if($st->rowCount()>0){
+                    $messages['email']="L'email existe déjà";
+                }
+            }
+            //test mdp
+            if(empty($_POST['motdepasse'])){
+                $messages['motdepasse'] = "Le mot de passe est obligatoire";
+            }elseif (strlen($_POST['motdepasse'])<8){
+                $messages['motdepasse']="Le mot de passe doit contenir au moins 8 caractères";
+            }
+        
+            //une fois les tests finis
+            if(empty($messages)){
+                $req = $db->prepare("INSERT INTO `utilisateur`(`Nom`, `Email`, `Motdepasse`, `type`) VALUES (?, ?, ?, 'utilisateur');");
+                $req->execute(array($_POST['nom'], $_POST['email'], password_hash($_POST['motdepasse'], PASSWORD_DEFAULT)));
+                Flight::redirect('/succes');
+        
+            }else{
+                Flight::view()->assign("erreurs", true);
+                Flight::view()->assign("messages",$messages);
+                Flight::view()->assign($_POST);
+                Flight::view()->display('templates/inscription.tpl', array("titre"=>"Inscription", "route"=>"GET /inscription", "erreur"=>$messages));
+            }
+        });
+    
+
 ?>
