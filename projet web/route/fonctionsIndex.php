@@ -44,14 +44,17 @@ Flight::route('POST /inscription', function(){
         }elseif (strlen($_POST['motdepasse'])<8){
             $messages['motdepasse']="Le mot de passe doit contenir au moins 8 caractères";
         }
+
     
-        //une fois les tests finis
+        //une fois les tests finis et réussis
         if(empty($messages)){
             $req = $db->prepare("INSERT INTO `utilisateur`(`Nom`, `Email`, `Motdepasse`, `type`) VALUES (?, ?, ?, 'utilisateur');");
             $req->execute(array($_POST['nom'], $_POST['email'], password_hash($_POST['motdepasse'], PASSWORD_DEFAULT)));
             Flight::redirect('/succes');
     
-        }else{
+        }
+        //si les tests ont échoué
+        else{
             Flight::view()->assign("erreurs", true);
             Flight::view()->assign("messages",$messages);
             Flight::view()->assign($_POST);
@@ -75,9 +78,12 @@ Flight::route('POST /inscription', function(){
         Flight::redirect("/");
     });
 
+    //route de GET /connexion
     Flight::route("GET /connexion", function(){
         Flight::render("templates/connexion.tpl", array("route"=>"GET /connexion", "titre"=>"Connexion"));
     });
+
+    //route de POST /connexion
 
     Flight::route("POST /connexion", function(){
         $error = false;
@@ -109,28 +115,40 @@ Flight::route('POST /inscription', function(){
         }
     });
 
+    //route de GET /candidature
+
     Flight::route("GET /candidature", function(){
         $data = array("route"=>"GET /candidature", "titre"=>"Candidature");
         Flight::render("templates/candidature.tpl", $data);
     });
 
+    //route de POST /candidature
+
     Flight::route('POST /candidature', function(){
-        $db = Flight::get('db');
+            $db = Flight::get('db');
             $messages=array();
-            // test nom
-            if(empty($_POST['nom'])){
-                $messages['nom'] = "Le nom d'utilisateur est obligatoire";
+            // test nomrepgroupe
+            if(empty($_POST['nomrepgroupe'])){
+                $messages['nomrepgroupe'] = "Le nom du représentant est obligatoire";
+            }
+            // test prenomrepgroupe
+            if(empty($_POST['prenomrepgroupe'])){
+                $messages['prenomrepgroupe'] = "Le prénom du représentant est obligatoire";
+            }
+            // test adresserepgroupe
+            if(empty($_POST['adresserepgroupe'])){
+                $messages['adresserepgroupe'] = "L'adresse du représentant est obligatoire";
             }
             // test email
-            if(empty($_POST['email'])){
-                $messages['email']="L'email est obligatoire";
+            if(empty($_POST['emailrepgroup'])){
+                $messages['emailrepgroup']="L'email du représentant est obligatoire";
             }elseif (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL) === FALSE) {
-                $messages['email'] = "L'email est invalide";
+                $messages['emailrepgroup'] = "L'email du représentant est invalide";
             }else{
                 $st=$db->prepare("select email from Utilisateur where email = ?");
-                $st->execute(array($_POST['email']));
+                $st->execute(array($_POST['emailrepgroup']));
                 if($st->rowCount()>0){
-                    $messages['email']="L'email existe déjà";
+                    $messages['emailrepgroup']="L'email du représentant existe déjà";
                 }
             }
             //test mdp
@@ -140,13 +158,15 @@ Flight::route('POST /inscription', function(){
                 $messages['motdepasse']="Le mot de passe doit contenir au moins 8 caractères";
             }
         
-            //une fois les tests finis
+            //une fois les tests finis et réussis
             if(empty($messages)){
                 $req = $db->prepare("INSERT INTO `utilisateur`(`Nom`, `Email`, `Motdepasse`, `type`) VALUES (?, ?, ?, 'utilisateur');");
                 $req->execute(array($_POST['nom'], $_POST['email'], password_hash($_POST['motdepasse'], PASSWORD_DEFAULT)));
                 Flight::redirect('/succes');
         
-            }else{
+            }
+            //sinon s'ils échouent on met un message d'erreur
+            else{
                 Flight::view()->assign("erreurs", true);
                 Flight::view()->assign("messages",$messages);
                 Flight::view()->assign($_POST);
