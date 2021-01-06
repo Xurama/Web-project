@@ -1,4 +1,5 @@
 <?php
+    //permet de débuter la session pour tous les fichiers, cela ne nous oblige pas à le réécrire à chaque fichier
     session_start();
     require '../includes/smarty/libs/Smarty.class.php'; 
     require "../includes/flight/flight/Flight.php";
